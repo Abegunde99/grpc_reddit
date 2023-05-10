@@ -23,15 +23,14 @@ exports.createUser = async (call, callback) => {
             if (err) {
                 return callback(err, null);
             }
-            client.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", [username, email, hash], (err, res) => {
+            client.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3) returning id", [username, email, hash], (err, res) => {
                 if (err) {
                     return callback(err, null);
                 }
-                
                 const response = {
-                    id: res.rows[0],
+                    id: res.rows[0].id,
                 };
-                return callback(null, { response });
+                return callback(null,  response );
             });
 
         });
@@ -41,15 +40,18 @@ exports.createUser = async (call, callback) => {
 
 exports.getUser = async (call, callback) => {
     const { id } = call.request;
-    client.query("SELECT username,email FROM users WHERE id = $1", [id], (err, res) => {
+    client.query("SELECT id, username,email FROM users WHERE id = $1", [id], (err, res) => {
         if (err) {
             return callback(err, null);
         } else {
             const response = {
-                username: res.rows[0].username,
-                email: res.rows[0].email,
+                user: {
+                    username: res.rows[0].username,
+                    email: res.rows[0].email,
+                    id: res.rows[0].id
+                }
             };
-            return callback(null, { response });
+            return callback(null, response);
         }
     });
 }
