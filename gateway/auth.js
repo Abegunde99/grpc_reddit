@@ -15,7 +15,9 @@ const client = new userService('localhost:50050', grpc.credentials.createInsecur
 exports.requiresAuth = (req, res, next) => {
 
     const token = req.headers.authorization.split(' ')[1];
-
+    if (!token) {
+        return res.status(401).json({ success: false, msg: 'No token, authorization denied' });
+    }
     client.isAuthenticated({ token }, (err, response) => {
         if (err) {
             console.error(err);

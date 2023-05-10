@@ -1,3 +1,4 @@
 gateway/node_modules
 user_service/node_modules
 post_service/node_modules
+subreddit_service/node_modules
