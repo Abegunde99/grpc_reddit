@@ -19,7 +19,7 @@ exports.requiresAuth = (req, res, next) => {
     client.isAuthenticated({ token }, (err, response) => {
         if (err) {
             console.error(err);
-            return res.status(500).json({ msg: 'user auth error' });
+            return res.status(500).json({success: false, msg: 'user auth error' });
         } else {
             const user = {
                 id: response.id,

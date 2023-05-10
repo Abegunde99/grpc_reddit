@@ -27,9 +27,9 @@ exports.createUser = async (call, callback) => {
                 if (err) {
                     return callback(err, null);
                 }
-
+                
                 const response = {
-                    id: res.rows[0].id,
+                    id: res.rows[0],
                 };
                 return callback(null, { response });
             });
@@ -54,14 +54,20 @@ exports.getUser = async (call, callback) => {
     });
 }
 
-exports.createToken = async (call, callback) => {
+exports.createToken = async function (call, callback)  {
     let user = call.request.user;
 
     //check if user exists
-    client.query("SELECT id,username FROM users WHERE email = $1", [user.email], (err, res) => {
+    client.query("SELECT id,username, password FROM users WHERE email = $1", [user.email], (err, res) => {
         if (err) {
             return callback(err, null);
         } else {
+            if (!user.password) {
+                return callback(new Error("Password or Email incorrect"), null);
+            };
+            if (!res.rows[0].password) {
+                return callback(new Error("Password or Email incorrect"), null);
+            }
             bcrypt.compare(user.password, res.rows[0].password, (err, isMatch) => {
                 if (err) {
                     return callback(err, null);
@@ -74,9 +80,9 @@ exports.createToken = async (call, callback) => {
                             return callback(err, null);
                         }
                         const response = {
-                            token: token,
+                            token,
                         }
-                        return callback(null, { response });
+                        return callback(null, response);
                     });
                 } else {
                     return callback(new Error("Password or Email incorrect"), null);

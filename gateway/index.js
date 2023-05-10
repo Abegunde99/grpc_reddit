@@ -5,7 +5,7 @@ const userRouter = require('./user');
 const { requiresAuth } = require('./auth');
 
 //middleware
-app.use(requiresAuth);
+// app.use(requiresAuth);
 app.use(express.json());
 app.use("/user", userRouter);
 
