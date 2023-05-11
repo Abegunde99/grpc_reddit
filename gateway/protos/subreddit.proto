@@ -1,0 +1,29 @@
+syntax = 'proto3';
+
+message Subreddit {
+    int32 id = 1;
+    int32 author = 2;
+    string name = 3;
+    string description = 4;
+};
+
+message GetSubredditRequest {
+    string id = 1;
+};
+
+message GetSubredditResponse {
+    Subreddit subreddit = 1;
+};
+
+message CreateSubredditRequest {
+    Subreddit subreddit = 1;
+};
+
+message CreateSubredditResponse {
+    int32 id = 1;
+};
+
+service SubredditService {
+    rpc GetSubreddit(GetSubredditRequest) returns (GetSubredditResponse) {};
+    rpc CreateSubreddit(CreateSubredditRequest) returns (CreateSubredditResponse) {};
+}

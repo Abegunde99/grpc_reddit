@@ -2,8 +2,8 @@ const { startGrpcServer, getGrpcServer } = require('./grpc');
 const protoLoader = require('@grpc/proto-loader');
 const grpc = require('@grpc/grpc-js');
 const path = require('path');
-const PROTO_PATH = path.join(__dirname,'post.proto');
-const { createPost, getPost, updatePost, likePost, commentPost } = require('./post');
+const PROTO_PATH = path.join(__dirname,'subreddit.proto');
+const { createSubreddit, getSubreddit } = require('./subreddit');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
@@ -13,15 +13,12 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     oneofs: true
 });
 
-const post_proto = grpc.loadPackageDefinition(packageDefinition);
+const subreddit_proto = grpc.loadPackageDefinition(packageDefinition);
 
 startGrpcServer();
 const server = getGrpcServer();
 
-server.addService(post_proto.PostService.service, {
-    createPost,
-    getPost,
-    updatePost,
-    likePost,
-    commentPost
+server.addService(subreddit_proto.SubredditService.service, {
+    createSubreddit,
+    getSubreddit
 }); 

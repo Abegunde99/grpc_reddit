@@ -34,6 +34,7 @@ exports.getPost = async (call, callback) => {
                     description: res.rows[0].description,
                     author: res.rows[0].author,
                     subreddit_id: res.rows[0].subreddit_id,
+                    id: res.rows[0].id
                 }
             };
             return callback(null, response);
@@ -43,6 +44,7 @@ exports.getPost = async (call, callback) => {
 
 exports.updatePost = async (call, callback) => {
     const { id, post, user_id } = call.request;
+
     const { title, description } = post;
     client.query("select author from posts where id = $1", [id], (err, res) => {
         if (err) {
@@ -51,25 +53,27 @@ exports.updatePost = async (call, callback) => {
             let query, values;
             if (res.rows.length > 0 && res.rows[0].author === user_id) {
                 if (title != "" && description != "") {
-                    query = "UPDATE posts SET title = $1, description = $2 WHERE id = $3";
+                    query = "UPDATE posts SET title = $1, description = $2 WHERE id = $3 returning id";
                     values = [title, description, id];
                 } else if (title != "") {
-                    query = "UPDATE posts SET title = $1 WHERE id = $2";
+                    query = "UPDATE posts SET title = $1 WHERE id = $2 returning id";
                     values = [title, id];
                 } else if (description != "") {
-                    query = "UPDATE posts SET description = $1 WHERE id = $2";
+                    query = "UPDATE posts SET description = $1 WHERE id = $2 returning id";
                     values = [description, id];
                 }
             } else {
                 return callback("You are not authorized to update this post", null);
             }
             client.query(query, values, (err, res) => {
+                console.log(res.rows)
                 if (err) {
                     return callback(err, null);
                 } else {
                     const response = {
-                        id
+                        id: res.rows[0].id,
                     };
+
                     return callback(null, response);
                 }
             });

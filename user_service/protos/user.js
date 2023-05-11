@@ -104,6 +104,6 @@ exports.isAuthenticated = async (call, callback) => {
             ok: true,
             user: user,
         };
-        return callback(null, { response });
+        return callback(null, response );
     });
 }

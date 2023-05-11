@@ -5,6 +5,7 @@ const { requiresAuth } = require('./auth');
 const protoLoader = require('@grpc/proto-loader');
 const grpc = require('@grpc/grpc-js');
 const path = require('path');
+const { getPost } = require('../post_service/protos/post');
 const PROTO_PATH = path.join(__dirname, 'protos', 'post.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -41,5 +42,43 @@ router.post('/', requiresAuth, (req, res) => {
         });
     }
 })
+
+router.get('/:id', requiresAuth, (req, res) => {
+    const { id } = req.params;
+    const getPostRequest = {
+        id
+    };
+    client.getPost(getPostRequest, (err, response) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: "post retrieval error" });
+        } else {
+            return res.status(200).json({ success: true, post: response });
+        }
+    });
+});
+
+router.put('/:id', requiresAuth, (req, res) => {
+    const { id } = req.params;
+    const{title, description} = req.body;
+    const updatePostRequest = {
+        id,
+        post: {
+            title,
+            description
+        },
+        user_id: req.user.id
+    };
+
+    client.updatePost(updatePostRequest, (err, response) => {
+        console.log(response)
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: "post update error" });
+        } else {
+            return res.status(200).json({ success: true, post: response });
+        }
+    });
+});
 
 module.exports = router;

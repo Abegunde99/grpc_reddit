@@ -13,7 +13,9 @@ const userService = grpc.loadPackageDefinition(packageDefinition).UserService;
 const client = new userService('localhost:50050', grpc.credentials.createInsecure());
 
 exports.requiresAuth = (req, res, next) => {
-
+    if (!req.headers.authorization) {
+        return res.status(401).json({ success: false, msg: 'No token, authorization denied' });
+    }
     const token = req.headers.authorization.split(' ')[1];
     if (!token) {
         return res.status(401).json({ success: false, msg: 'No token, authorization denied' });
@@ -24,9 +26,9 @@ exports.requiresAuth = (req, res, next) => {
             return res.status(500).json({success: false, msg: 'user auth error' });
         } else {
             const user = {
-                id: response.id,
-                email: response.email,
-                username: response.username
+                id: response.user.id,
+                email: response.user.email,
+                username: response.user.username
             };
             req.user = user;
         }
