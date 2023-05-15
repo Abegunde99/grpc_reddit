@@ -5,7 +5,8 @@ message Post {
     string description = 2;
     int32 subreddit_id = 3;
     int32 author = 4;
-    int32 id = 5;
+    int32 likes = 5;
+    int32 id = 6;
 }
 
 message CreatePostRequest {

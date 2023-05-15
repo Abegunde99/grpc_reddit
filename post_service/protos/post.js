@@ -24,7 +24,7 @@ exports.createPost = async (call, callback) => {
 
 exports.getPost = async (call, callback) => {
     const { id } = call.request;
-    client.query("SELECT id, title, description, author, subreddit_id FROM posts WHERE id = $1", [id], (err, res) => {
+    client.query("SELECT id, title, description, author, likes, subreddit_id FROM posts WHERE id = $1", [id], (err, res) => {
         if (err) {
             return callback(err, null);
         } else {
@@ -33,10 +33,12 @@ exports.getPost = async (call, callback) => {
                     title: res.rows[0].title,
                     description: res.rows[0].description,
                     author: res.rows[0].author,
+                    likes: res.rows[0].likes,
                     subreddit_id: res.rows[0].subreddit_id,
                     id: res.rows[0].id
                 }
             };
+            console.log(response)
             return callback(null, response);
         }
     });
@@ -62,21 +64,22 @@ exports.updatePost = async (call, callback) => {
                     query = "UPDATE posts SET description = $1 WHERE id = $2 returning id";
                     values = [description, id];
                 }
+
+                client.query(query, values, (err, res) => {
+                    console.log(res.rows)
+                    if (err) {
+                        return callback(err, null);
+                    } else {
+                        
+    
+                    return callback(null, { id: res.rows[0].id });
+                    }
+                });
+
             } else {
                 return callback("You are not authorized to update this post", null);
             }
-            client.query(query, values, (err, res) => {
-                console.log(res.rows)
-                if (err) {
-                    return callback(err, null);
-                } else {
-                    const response = {
-                        id: res.rows[0].id,
-                    };
-
-                    return callback(null, response);
-                }
-            });
+          
         }
                 
     });
@@ -86,25 +89,28 @@ exports.updatePost = async (call, callback) => {
 exports.likePost = async (call, callback) => {
     const { id, user_id } = call.request;
     
-    client.query("select likes from posts where id = $1", [id], (err, res) => {
-        if (err) {
-            return callback(err, null);
-        } else {
-            let likes = res.rows[0].likes;
-            if (likes.includes(user_id)) {
-                return callback("You have already liked this post", null);
-            } else {
+    // client.query("select likes from posts where id = $1", [id], (err, res) => {
+    //     if (err) {
+    //         return callback(err, null);
+    //     } else {
+
+    //         let likes = res.rows[0].likes;
+
+    //         if (likes) {
+    //             return callback("You have already liked this post", null);
+    //         } else {
                 client.query("update posts set likes = likes + 1 where id = $1", [id], (err, res) => {
                     if (err) {
                         return callback(err, null);
                     } else {
+                        // likes.push(user_id);
                         return callback(null, { id })
                     }
                 });
                 
-            }
-        }
-    });
+    //         }
+    //     }
+    // });
 }
 
 exports.commentPost = async (call, callback) => {

@@ -81,4 +81,21 @@ router.put('/:id', requiresAuth, (req, res) => {
     });
 });
 
+router.put('/:id/like', requiresAuth, (req, res) => { 
+    const { id } = req.params;
+    const likePostRequest = {
+        id,
+        user_id: req.user.id
+    };
+
+    client.likePost(likePostRequest, (err, response) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: "post like error" });
+        } else {
+            return res.status(200).json({ success: true, post: response });
+        }
+    });
+});
+
 module.exports = router;
